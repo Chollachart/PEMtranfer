@@ -1,14 +1,20 @@
 <?php
 class db_class{
-	public function __construct(){
-
+	private $array_connection = NULL;
+	public function __construct($cmp_code){
+		if($cmp_code=="PEM"){
+			$this->array_connection = array("server"=>"192.168.10.4\EXACTDB","user"=>"admin_prod","password"=>"PreciseI$#910","dbname"=>"002");
+		}
+		else if($cmp_code=="PEM1"||$cmp_code=="PEM (Branch 1)"){
+			$this->array_connection = array("server"=>"192.168.33.5","user"=>"sa","password"=>"PreciseI$","dbname"=>"110");
+		}
 	}
 	public function connect_db()
 	{
-		$serverName = "192.168.10.4\EXACTDB";
-		$userName = "admin_prod";
-		$userPassword = "PreciseI$#910";
-		$dbName = "001";
+		$serverName = $this->array_connection['server'];
+		$userName = $this->array_connection['user'];
+		$userPassword = $this->array_connection['password'];
+		$dbName = $this->array_connection['dbname'];
 		$conn = new PDO("sqlsrv:server=".$serverName." ; Database = ".$dbName, $userName, $userPassword);
 		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		return $conn;
