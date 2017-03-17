@@ -1,0 +1,40 @@
+@font-face {
+	font-family: 'Conv_THSarabunNew';
+	src: url('../fonts/THSarabunNew.eot');
+	src: local('☺'), url('../fonts/THSarabunNew.woff') format('woff'), url('../fonts/THSarabunNew.ttf') format('truetype'), url('../fonts/THSarabunNew.svg') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+body{
+	font-family: 'Conv_THSarabunNew';
+	font-size: 20px;
+}
+.top-tap{
+	height: 40px;
+	padding: 10px;
+}
+div.inner-content{
+	padding: 10px;
+}
+div.content{
+	border-left:thin solid #DDD;
+	border-right:thin solid #DDD;
+	border-bottom:thin solid #DDD;
+}
+div.content{
+	padding: 15px;
+	min-height: 80%;
+}
+.table-main{
+	width: 100%;
+	padding: 3px;
+}
+.table-main thead tr td{
+	background-color: #B0C4DE;
+	padding: 3px;
+	font-size: 20px;
+	font-weight: bold;
+}
+.table-main tbody tr td{
+	padding: 3px;
+}
