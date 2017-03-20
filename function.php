@@ -8,6 +8,9 @@ class db_class{
 		else if($cmp_code=="PEM1"||$cmp_code=="PEM (Branch 1)"){
 			$this->array_connection = array("server"=>"192.168.33.5","user"=>"sa","password"=>"PreciseI$","dbname"=>"110");
 		}
+		else if($cmp_code=="localhost"){
+			$this->array_connection = array("server"=>"192.168.33.5","user"=>"sa","password"=>"PreciseI$","dbname"=>"reserve_db");
+		}
 	}
 	public function connect_db()
 	{

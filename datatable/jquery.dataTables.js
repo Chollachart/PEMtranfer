@@ -11300,7 +11300,7 @@
 			 *      } );
 			 *    } );
 			 */
-			"sEmptyTable": "No data",
+			"sEmptyTable": "ไม่มีข้อมูล",
 	
 	
 			/**

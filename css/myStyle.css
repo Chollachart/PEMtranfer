@@ -9,6 +9,9 @@ body{
 	font-family: 'Conv_THSarabunNew';
 	font-size: 20px;
 }
+a{
+	cursor:pointer;
+}
 .top-tap{
 	height: 40px;
 	padding: 10px;
@@ -17,6 +20,7 @@ div.inner-content{
 	padding: 10px;
 }
 div.content{
+	margin-top: 30px;
 	border-left:thin solid #DDD;
 	border-right:thin solid #DDD;
 	border-bottom:thin solid #DDD;
@@ -31,10 +35,53 @@ div.content{
 }
 .table-main thead tr td{
 	background-color: #B0C4DE;
-	padding: 3px;
+	padding: 10px;
 	font-size: 20px;
 	font-weight: bold;
 }
 .table-main tbody tr td{
+	padding: 10px;
+	font-size: 20px;
+}
+.table-small{
+	width: 100%;
 	padding: 3px;
+}
+.table-small thead tr td{
+	background-color: #FDF5E6;
+	font-size: 97%
+}
+.table-small tbody tr td{
+	background-color: #FFFAF0;
+	font-size: 97%
+}
+.table-small tfoot tr td{
+	background-color: #FDF5E6;
+	font-size: 97%
+}
+div.content textarea{
+	resize:none;
+	height: 100px;
+}
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 5px;
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 22px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+.dialog_html{
+	font-family: 'Conv_THSarabunNew'; font-size: 20px;
+}
+.dataTables_empty{
+	text-align: center;
 }
