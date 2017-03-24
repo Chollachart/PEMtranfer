@@ -1,30 +1,6 @@
-$(document).ready(function(){
-
+$("document").ready(function(){
+  $("nav.navbar").fadeIn();
 });
-
-$("li[role=menu]").click(function(){
-	$("li[role=menu]").not(this).removeClass('active');
-	$(this).addClass('active');
-	getContent($(this).attr('get-content'));
-});
-
-function getContent(fileName){
-  $.ajax({
-      url: "ajaxPage/"+fileName+".php",
-      async: true,
-      dataType: "text",
-      type: "post",
-      data: {"userid":$("#hidden_user_id").val(),"user_name":$("#hidden_user_name").val(),"user_email":$("#hidden_user_email").val(),"user_company":$("#hidden_user_company").val(),"user_company_allowed":$("#hidden_user_company_allowed").val()},
-      beforeSend: function(){
-          $(".inner-content").html('');
-          $.isLoading({ text:"กำลังโหลด",position:"overlay"});
-      },
-      success: function (result) {
-          $.isLoading("hide");
-          $(".inner-content").html(result);
-      }
-  }); 
-}
 
 function get_itemcode_array(){
  var itemcode_return = [];
@@ -43,6 +19,15 @@ function get_itemcode_array(){
       }
   });
   return itemcode_return;
+}
+function edit_reserve(trans_id,from_page){
+  window.location = "edit_reserve.php?id="+trans_id+"&rev="+from_page;
+}
+function acknowledge_approve(trans_id,from_page){
+  window.location = "acknowledge_form.php?id="+trans_id+"&rev="+from_page;
+}
+function cutting_stock(trans_id,from_page){
+  window.location = "transfer_form.php?id="+trans_id+"&rev="+from_page;
 }
 
 

@@ -39,6 +39,9 @@ div.content{
 	font-size: 20px;
 	font-weight: bold;
 }
+.table-main tbody tr {
+	border-bottom: thin solid #CCCCCC;
+}
 .table-main tbody tr td{
 	padding: 10px;
 	font-size: 20px;
@@ -52,7 +55,7 @@ div.content{
 	font-size: 97%
 }
 .table-small tbody tr td{
-	background-color: #FFFAF0;
+	background-color: #F0FFF0;
 	font-size: 97%
 }
 .table-small tfoot tr td{
@@ -66,7 +69,6 @@ div.content textarea{
 .fileUpload {
     position: relative;
     overflow: hidden;
-    margin: 5px;
 }
 .fileUpload input.upload {
     position: absolute;
@@ -84,4 +86,45 @@ div.content textarea{
 }
 .dataTables_empty{
 	text-align: center;
+}
+.edit_data{
+	cursor: pointer;
+}
+table.tableStrikeout { border-collapse: collapse; empty-cells: show; width: 100%; padding: 3px; }
+
+table.tableStrikeout  td { position: relative; }
+
+table.tableStrikeout tr.strikeout td:before {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-bottom: 1px solid #111;
+  width: 100%;
+}
+table.tableStrikeout thead tr td{
+	background-color: #FDF5E6;
+	font-size: 97%
+}
+table.tableStrikeout tbody tr td{
+	background-color: #F0FFF0;
+	font-size: 97%
+}
+table.tableStrikeout tfoot tr td{
+	background-color: #FDF5E6;
+	font-size: 97%
+}
+.table-transfer{
+	width: 100%;
+	padding: 3px;
+}
+.table-transfer thead tr td{
+	background-color: #E6E6FA;
+	padding: 3px;
+	font-size: 20px;
+}
+.table-transfer tbody tr td{
+	background-color: #F0F8FF;
+	padding: 3px;
+	font-size: 18px;
 }
