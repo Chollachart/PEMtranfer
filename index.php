@@ -64,7 +64,7 @@ echo $panelLogout;
 		            <li class="dropdown">
 		              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">ตั้งค่า<span class="caret"></span></a>
 		              <ul class="dropdown-menu">
-		                <li role="menu" get-content="mapping_itemcode"><a href="#">จับคู่ไอเทม</a></li>
+		                <li role="menu"><a href="mapping_itemcode.php">จับคู่ไอเทม</a></li>
 		                <!--<li role="separator" class="divider"></li>-->
 		              </ul>
 		            </li>

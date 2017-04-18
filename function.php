@@ -1,4 +1,6 @@
 <?php
+require_once('phpmail/class.phpmailer.php');
+date_default_timezone_set("Asia/Bangkok");
 class db_class{
 	private $array_connection = NULL;
 	public function __construct($cmp_code){
@@ -6,7 +8,7 @@ class db_class{
 			$this->array_connection = array("server"=>"192.168.10.4\EXACTDB","user"=>"admin_prod","password"=>"PreciseI$#910","dbname"=>"002");
 		}
 		else if($cmp_code=="PEM1"||$cmp_code=="PEM (Branch 1)"){
-			$this->array_connection = array("server"=>"192.168.33.5","user"=>"sa","password"=>"PreciseI$","dbname"=>"110");
+			$this->array_connection = array("server"=>"192.168.33.5","user"=>"sa","password"=>"PreciseI$","dbname"=>"502");
 		}
 		else if($cmp_code=="localhost"){
 			$this->array_connection = array("server"=>"192.168.33.5","user"=>"sa","password"=>"PreciseI$","dbname"=>"reserve_db");
@@ -37,7 +39,61 @@ class db_class{
 		}
 	}
 }
+class db_class_mysql{
+	public $conn = NULL;
+	public function __construct($server,$db,$username,$password)
+	{
+		$dsn = 'mysql:host='.$server.'; dbname='.$db.'; charset=utf8';
+		$conn_pdo = new PDO($dsn,$username,$password);
+		$conn_pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->conn = $conn_pdo;
+	}
+	public function query_data($query_string,$params){
+		if($this->conn==NULL){return "Cannot connect to server !!";}
+		else{
+			$conn_data = $this->conn;
+			try{
+				$stmt_query=$conn_data->prepare($query_string);
+				$stmt_query->execute($params);
+				$array_return = array();
+				while($arr_q=$stmt_query->fetch( PDO::FETCH_ASSOC )){
+					array_push($array_return, $arr_q);
+				}
+				return $array_return;
+			}catch(PDOException $e){
+				return $e->getMessage();
+			}
+		}
+	}
+}
 class general_class{
+	public function send_email($mail_from,$from_name,$subject_name,$body,$mail_to_str){
+		$mail = new PHPMailer(); $mail->IsHTML(true); $mail->CharSet = "utf-8"; $mail->IsSMTP();
+		$mail->Host = "mail.precise.co.th"; // sets GMAIL as the SMTP server
+		$mail->Port = 25; // set the SMTP port for the GMAIL server
+		$mail->From = $mail_from; // "finance email"
+		$mail->FromName = $from_name;  // set from Name
+		$mail->Subject = $subject_name; 
+		$mail->Body = $body;
+		
+
+		$address_arr = explode(";",$mail_to_str);
+		foreach ($address_arr as $address) {
+			if($address!=""&&$address!=NULL){$mail->AddAddress($address);}
+		}
+		 // to Address
+		$mail->set('X-Priority', '3'); //Priority 1 = High, 3 = Normal, 5 = low
+		$mail->AddCC("chollachart.n@precise.co.th","Chollachart");
+		//$mail->AddCC("pakkapon.b@precise.co.th","Pakkapon");
+		if(!$mail->Send()) 
+		{
+			$mail->SmtpClose();
+			return false;
+		}else{
+			$mail->SmtpClose();
+			return true;
+		}
+	}
 	public function utf8($tis) {
 			$utf8 = "";
 			for( $i=0 ; $i< strlen($tis) ; $i++ ){
@@ -103,6 +159,26 @@ class general_class{
 		return date("d/m/Y",strtotime($datetime));
 		}
 		else{return "";}
+	}
+	public function gen_tranfer_no($company_source){
+		if($company_source=="PEM"){$code = "PH";}else{$code = "PB";}
+		$arr_date = getdate();
+		$month = str_pad($arr_date['mon'],2,"0",STR_PAD_LEFT);
+		$year = substr($arr_date['year'], -2);
+		$class_db = new db_class("localhost");
+				
+		$str_gen = "select top 1 atid,rt.reserve_no from reserve_transaction rt where rt.source_cmp = '".$company_source."' 
+			and rt.reserve_no like '%".$code."-".$year.$month."%'  order by rt.atid desc";
+		$arr_last_no=$class_db->query_data($str_gen,NULL); 
+		
+		if(is_array($arr_last_no)&&sizeof($arr_last_no)>0){
+			$arr_explode = explode("-",$arr_last_no[0]['reserve_no']);
+			$last_num = str_pad((intval($arr_explode[2])+1),4,"0",STR_PAD_LEFT); // 0001
+			$gen_no = $code."-".$year.$month."-".$last_num;
+		}else{
+			$gen_no = $code."-".$year.$month."-0001";
+		}
+		return $gen_no;
 	}
 }
 ?>

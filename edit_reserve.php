@@ -27,7 +27,7 @@ echo $panelLogout;
 $local_db = new db_class("localhost");
 $class_general = new general_class();
 $company_source = $company_allowed; 
-if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
+if($company_source=="PEM"){$company_destination = "PEM1";}else{$company_destination = "PEM";}
 $trans_id = $_GET['id'];
 
 $q_reserve_old = "select * from reserve_transaction where atid=?";
@@ -91,7 +91,7 @@ $arr_reserve = $arr_old_reserve[0];
 		            <li class="dropdown">
 		              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">ตั้งค่า<span class="caret"></span></a>
 		              <ul class="dropdown-menu">
-		                <li role="menu" get-content="mapping_itemcode"><a href="#">จับคู่ไอเทม</a></li>
+		                <li role="menu"><a href="mapping_itemcode.php">จับคู่ไอเทม</a></li>
 		                <!--<li role="separator" class="divider"></li>-->
 		              </ul>
 		            </li>
@@ -203,20 +203,21 @@ $arr_reserve = $arr_old_reserve[0];
 					</td>
 				</tr>
 				<tr>
-					<td align="right">ไอเทม : </td>
+					<td align="right">Item : </td>
 					<td>
 						<table id="edit_table_item_add" class="tableStrikeout">
 							<thead>
 								<tr>
 									<td>old id</td>
-									<td>ไอเทมไอดี</td>
-									<td width="20%">ไอเทม <?=$company_source?></td>
-									<td width="20%">ไอเทม <?=$company_destination?></td>
-									<td width="20%">คำอธิบาย</td>
+									<td>Itemid</td>
+									<td width="15%">Itemcode <?=$company_source?></td>
+									<td width="22%">Description <?=$company_source?></td>
+									<td width="15%">Itemcode <?=$company_destination?></td>
+									<td width="22%">Description <?=$company_destination?></td>
 									<td width="5%">Expect Date</td>
-									<td width="10%">จำนวนที่ต้องการ</td>
-									<td width="10%">โน้ต</td>
-									<td width="5%">เพิ่ม/ลบ</td>
+									<td width="8%">Quantity</td>
+									<td width="8%">Note</td>
+									<td width="5%">Add/Delete</td>
 									<td width="">action</td>
 								</tr>
 							</thead>
@@ -230,12 +231,13 @@ $arr_reserve = $arr_old_reserve[0];
 										echo '<td>'.$arr_q_item[$i]["atid"].'</td>';
 										echo '<td>'.$arr_q_item[$i]["item_id"].'</td>';
 										echo '<td>'.$arr_q_item[$i]["itemcode_".$company_source].'</td>';
-										echo '<td>'.$arr_q_item[$i]["itemcode_".$company_destination].'</td>';
 										echo '<td>'.$arr_q_item[$i]["itemdes_".$company_source].'</td>';
+										echo '<td>'.$arr_q_item[$i]["itemcode_".$company_destination].'</td>';
+										echo '<td>'.$arr_q_item[$i]["itemdes_".$company_destination].'</td>';
 										echo '<td>'.$class_general->change_date_from_db_to_show_date($arr_q_item[$i]["expect_date"]).'</td>';
 										echo '<td>'.$arr_q_item[$i]["qty"].'</td>';
 										echo '<td>'.$arr_q_item[$i]["note_item"].'</td>';
-										echo '<td><img style="cursor:pointer;" class="delete_row" src="img/delete_row.png" width="30" height="30"></td>';
+										echo '<td><img style="cursor:pointer;" class="delete_row" src="img/delete_line.png" width="30" height="30"></td>';
 										echo '<td>1</td>'; // action (0=delete,1=update,2=create)
 									echo '</tr>';
 									$i++;
@@ -246,16 +248,17 @@ $arr_reserve = $arr_old_reserve[0];
 								<tr>
 									<td></td>
 									<td></td>
-									<td><select class="form-control" style="width:100%" id="edit_item_tranfer"><option value="">เลือกไอเทม</option></select></td>
-									<td><span id="span_item_code_desitation"></span></td>
-									<td><span id="span_item_des_desitation"></span></td>
-									<td><input id="edit_expect_date" placeholder="วันที่" type="text" class="form-control"></td>
+									<td><input type="text" class="form-control" item-atid="" style="width:100%" id="edit_item_tranfer"></td>
+									<td><span id="span_item_des_source"></span></td>
+									<td><span id="span_item_code_destination"></span></td>
+									<td><span id="span_item_des_destination"></span></td>
+									<td><input id="edit_expect_date" placeholder="วันที่" type="text" class="form-control" readonly></td>
 									<td>
 										<input id="edit_item_qty" placeholder="จำนวน" type="text" class="form-control">
 										
 									</td>
 									<td><input id="edit_note_item" placeholder="โน้ต" type="text" class="form-control"></td>
-									<td><img style="cursor:pointer;" src="img/add_row.png" onclick="add_row_footer();" width="30" height="30"></td>
+									<td><img style="cursor:pointer;" src="img/save.png" onclick="add_row_footer();" width="30" height="30"></td>
 									<td></td>
 								</tr>
 							</tfoot>
@@ -263,11 +266,11 @@ $arr_reserve = $arr_old_reserve[0];
 					</td>
 				</tr>
 				<tr>
-					<td align="right" style="vertical-align:text-top;">ซีเรียล, โน้ต : </td>
+					<td align="right" style="vertical-align:text-top;">Serial, Note (<?=$arr_reserve['source_cmp']?>) : </td>
 					<td>
 						<div class="row">
 						  	<div class="col-md-6">
-						  		<textarea id="edit_note" class="form-control"><?=$arr_reserve['note']?></textarea>
+						  		<textarea id="edit_note" class="form-control"><?=$arr_reserve['source_note']?></textarea>
 							</div>
 			  			</div>
 					</td>
@@ -306,8 +309,24 @@ $arr_reserve = $arr_old_reserve[0];
 				</tr>
 				<tr>
 					<td align="center" colspan="2">
-						<button class="btn btn-primary btn-lg" onclick="save_edit('<?=$trans_id?>');" style="width:100%">แก้ไขใบคำขอ</button>
+						
+						<?php 
+						if($arr_reserve['status']==2){
+						?>
+						<button class="btn btn-danger btn-lg" onclick="delete_transaction('<?=$trans_id?>','<?=$_GET["rev"]?>','<?=$personDetail["UserID"]?>','<?=$personDetail["PersonFnamethai"].' '.$personDetail["PersonLnamethai"]?>');" style="width:33%">ลบใบคำขอ</button>
+						<button class="btn btn-primary btn-lg" onclick="save_edit('<?=$trans_id?>','<?=$arr_reserve['status']?>','edit');" style="width:33%">แก้ไขใบคำขอ</button>
+						<button class="btn btn-success btn-lg" onclick="save_edit('<?=$trans_id?>','1','open');" style="width:33%">ส่งใบคำขออีกครั้ง</button>
+						<?php
+						}else{
+						?>
+						<button class="btn btn-danger btn-lg" onclick="delete_transaction('<?=$trans_id?>','<?=$_GET["rev"]?>','<?=$personDetail["UserID"]?>','<?=$personDetail["PersonFnamethai"].' '.$personDetail["PersonLnamethai"]?>');" style="width:49%">ลบใบคำขอ</button>
+						<button class="btn btn-primary btn-lg" onclick="save_edit('<?=$trans_id?>','<?=$arr_reserve['status']?>','edit');" style="width:49%">แก้ไขใบคำขอ</button>
+						<?php
+						}
+						?>
+						
 					</td>
+					
 				</tr>
 			</table>
     	</div>
@@ -316,22 +335,36 @@ $arr_reserve = $arr_old_reserve[0];
 <script>
 var win_width = window.innerWidth;
 var win_height = window.innerHeight;
-var itemcode_obj = get_itemcode_array();
-push_itemcode_to_selector();
+var arr_autocomplete_itemcode = null;
+arr_autocomplete_itemcode = get_itemcode_array($("#edit_company_source_code").val(),$("#edit_company_destination_code").val());
 
 $('#edit_item_qty').bind('keypress',function(e){var charCode = (e.which) ? e.which : e.keyCode; if (charCode > 31 && (charCode < 48 || charCode > 57)) { return false;}});
 $('#edit_expect_date').datepicker({daysOfWeekDisabled: [0,6],format:'dd/mm/yyyy',autoclose: true,todayHighlight:true,language:'th',minViewMode: "0",startDate: new Date()});
 
-var table_item_tranfer=$('#edit_table_item_add').DataTable({"dom":'<t>',"columnDefs": [{"targets": [0,1,9],"visible": false,"searchable": false}],"bPaginate": false,"bSort":false});
+var table_item_tranfer=$('#edit_table_item_add').DataTable({"dom":'<t>',"columnDefs": [{"targets": [0,1,10],"visible": false,"searchable": false}],"bPaginate": false,"bSort":false});
 
-$("#edit_item_tranfer").change(function(){
-	var atid_item = $(this).val();
-	if(atid_item==""||atid_item==null){$("#span_item_des_desitation,#span_item_code_desitation").html('');}else{
-		$("#span_item_des_desitation").html(itemcode_obj[atid_item]["itemdes_"+$("#edit_company_source_code").val()]);
-		$("#span_item_code_desitation").html(itemcode_obj[atid_item]["itemcode_"+$("#edit_company_destination_code").val()]);
-	}
-	//$("#create_item_description").html(itemcode_obj[]);
-});
+$("#edit_item_tranfer").autocomplete({
+ 	source: function(request, response) {
+ 		if(arr_autocomplete_itemcode!=null){
+        	var results = $.ui.autocomplete.filter(arr_autocomplete_itemcode, request.term);
+        	response(results.slice(0, 10));
+    	}
+    },
+ 	select : function(event, ui){
+		var value = arr_autocomplete_itemcode[ui.item.value];
+		//console.log(ui.item);
+		$(this).attr("item-atid",ui.item.atid);
+		$("#span_item_code_destination").html(ui.item.itemcode_destination);
+		$("#span_item_des_source").html(ui.item.itemdes_source);
+		$("#span_item_des_destination").html(ui.item.itemdes_destination);
+    },
+    change: function (event, ui) {
+        if(!ui.item){$(this).val(""); $("#span_item_code_destination,#span_item_des_destination,#span_item_des_source").html('');}
+    }
+}).click(function() {
+	    $(this).val('').autocomplete('search',' ');
+}).focusout(function(){if($(this).val()==""){ $(this).attr("item-atid",""); $("#span_item_code_destination,#span_item_des_destination,#span_item_des_source").html(''); }});
+
 $("input[type=file][class=upload]").change(function(){
   var path = $(this).val();
   var filename = path.replace(/^.*\\/, "");
@@ -341,22 +374,28 @@ $("input[type=file][class=upload]").change(function(){
 $('#edit_table_item_add tbody').on( 'click', 'img.delete_row', function () {
 	$(this).parents('tr').removeAttr('class').addClass('strikeout');
 	var this_row_data = table_item_tranfer.row($(this).closest("tr")).data(); 
-	this_row_data[9] = "0"; // set to delete
+	this_row_data[10] = "0"; // set to delete
 	table_item_tranfer.row($(this).closest("tr")).data(this_row_data).draw(); 
 });
 
-function push_itemcode_to_selector(){
-		for (var key in itemcode_obj) {
-			  if (itemcode_obj.hasOwnProperty(key)) {
-			    $('#edit_item_tranfer').append($("<option></option>").attr("value",itemcode_obj[key]['atid']).text($.trim(itemcode_obj[key]['itemcode_'+$("#edit_company_source_code").val()]))); 
-			  }
-		}
-}
 function add_row_footer(){
-	if($('#edit_item_tranfer').val()==""||$('#edit_item_qty').val()==""){alert("กรุณาระบุข้อมูลให้ครบถ้วน"); return false;}
-	var data_item = itemcode_obj[$("#edit_item_tranfer option:selected").val()];
-	//console.log(data_item);
-	row_node=table_item_tranfer.row.add([null,data_item['atid'],data_item['itemcode_'+$("#edit_company_source_code").val()],data_item['itemcode_'+$("#edit_company_destination_code").val()],data_item['itemdes_'+$("#edit_company_source_code").val()],$("#edit_expect_date").val(),$("#edit_item_qty").val(),$("#edit_note_item").val(),'<img style="cursor:pointer;" class="delete_row" src="img/delete_row.png" onclick="delete_row(this);" width="30" height="30">','2']).draw().node();
+	if($('#edit_item_tranfer').val()==""||$('#edit_item_qty').val()==""||$("#edit_item_tranfer").attr("item-atid")==""){alert("กรุณาระบุข้อมูลให้ครบถ้วน"); return false;}
+	if($('#span_item_code_destination').html()==""){alert("กรุณาเลือกไอเทมจากใน List เท่านั้น"); return false;}
+	$(".content").isLoading({ text:"กำลังเพิ่ม",position:"overlay"});
+	console.log(arr_autocomplete_itemcode);
+	var i=0;
+	while(i<arr_autocomplete_itemcode.length){
+		var obj_check = arr_autocomplete_itemcode[i];
+		if(obj_check.atid==$("#edit_item_tranfer").attr("item-atid")){
+			row_node=table_item_tranfer.row.add([null,obj_check.atid,obj_check.itemcode_source,obj_check.itemdes_source,obj_check.itemcode_destination,obj_check.itemdes_destination,$("#edit_expect_date").val(),$("#edit_item_qty").val(),$("#edit_note_item").val(),'<img style="cursor:pointer;" class="delete_row" src="img/delete_line.png" onclick="delete_row(this);" width="30" height="30">','2']).draw().node();
+			break;
+		}
+		i++;
+	}
+	$(".content").isLoading("hide");
+	$("#edit_item_tranfer").attr("item-atid","");
+	$("#edit_item_tranfer,#edit_expect_date,#edit_note_item,#edit_item_qty").val('');
+	$("#span_item_code_destination,#span_item_des_destination,#span_item_des_source").html('');
 }
 function delete_row(this_html){
 	table_item_tranfer.row($(this_html).parents('tr')).remove().draw();
@@ -370,14 +409,14 @@ function delete_file(trans_id){
 	});
 }
 
-function save_edit(trans_id){
+function save_edit(trans_id,save_status,type_status){
 	var r = confirm("ยืนยันการแก้ไข");
 	if(r==true){
 		var rowCount=table_item_tranfer.column(0).data().length; var i=0; var array_item_insert = [];  var count_delete = 0;
 		while(i<rowCount){
 			var data_tr = table_item_tranfer.row(i).data();
 			array_item_insert.push(data_tr);
-			if(data_tr[9]=="0"){count_delete++;}
+			if(data_tr[10]=="0"){count_delete++;}
 			i++;
 		}
 		//console.log(array_item_insert)
@@ -390,7 +429,7 @@ function save_edit(trans_id){
 		      async: true,
 		      dataType: "json",
 		      type: "post",
-		      data: {"trans_id":trans_id,"last_status":$("#edit_last_status").val(),"userid":$("#edit_userid").val(),"username":$("#edit_username").val(),"company_source":$("#edit_company_source_code").val(),
+		      data: {"save_status":save_status,"type_status":type_status,"trans_id":trans_id,"last_status":$("#edit_last_status").val(),"userid":$("#edit_userid").val(),"username":$("#edit_username").val(),"company_source":$("#edit_company_source_code").val(),
 		      "company_destination":$("#edit_company_destination_code").val(),"reason":$("#edit_reason option:selected").val(),"reason_detail":$.trim($("#edit_reason_detail").val()),
 		      "div_source":$("#edit_div_source option:selected").val(),
 		      "div_destination":$("#edit_div_destination option:selected").val(),"note":$("#edit_note").val(),

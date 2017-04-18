@@ -27,7 +27,7 @@ echo $panelLogout;
 $local_db = new db_class("localhost");
 $class_general = new general_class();
 $company_source = $company_allowed; 
-if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
+if($company_source=="PEM"){$company_destination = "PEM1";}else{$company_destination = "PEM";}
 ?>
 <html>
 	<head>
@@ -50,6 +50,8 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 	    <script type="text/javascript" language="javascript" src="datatable/jquery.dataTables.js"></script>
 	    <script type="text/javascript" language="javascript" src="datatable/dataTables.tableTools.js"></script>
 	    <script type="text/javascript" language="javascript" src="datatable/dataTables.bootstrap.js"></script>
+	    <script type="text/javascript" src="js/wz_tooltip.js"></script>
+
 	</head>
 	<body>
 		<input type="hidden" id="hidden_user_id" value="<?=$personDetail['UserID']?>">
@@ -84,7 +86,7 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 		            <li class="dropdown">
 		              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">ตั้งค่า<span class="caret"></span></a>
 		              <ul class="dropdown-menu">
-		                <li role="menu" get-content="mapping_itemcode"><a href="#">จับคู่ไอเทม</a></li>
+		                <li role="menu"><a href="mapping_itemcode.php">จับคู่ไอเทม</a></li>
 		                <!--<li role="separator" class="divider"></li>-->
 		              </ul>
 		            </li>
@@ -98,31 +100,42 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
     			<thead>
     				<tr>
     					<td>id</td>
-    					<td width="5%">แก้ไข</td>
+    					<td width="20%">แก้ไข</td>
     					<td width="15%">ร้องขอไปยัง</td>
     					<td width="10%">สาเหตุ</td>
-    					<td width="30%">รายละเอียด</td>
-    					<td width="15%">โน้ต</td>
-    					<td width="10%">สถานะ</td>
-    					<td width="15%">แก้ไขล่าสุด</td>
+    					<td width="20%">รายละเอียด</td>
+    					<td width="20%">Note</td>
+    					<td width="15%">สถานะ</td>
     				</tr>
     			</thead>
     			<tbody>
     				<?php
-   					$q_trans = "select rt.*,c.des as cause_des,s.name as status_des from reserve_transaction rt left join cause c on rt.cause_id=c.atid left join status s on rt.status=s.atid where rt.source_cmp='".$company_allowed."' and rt.row_active=1";
+   					$q_trans = "select rt.*,c.des as cause_des,s.name as status_des from reserve_transaction rt left join cause c on rt.cause_id=c.atid left join status s on rt.status=s.atid where rt.source_cmp='".$company_allowed."' and rt.row_active=1 and (rt.status=1 or rt.status=2)";
    					$arr_trans=$local_db->query_data($q_trans,NULL);
     				$i=0;
     				while($i<sizeof($arr_trans)){
     					?>
     					<tr>
     						<td><?=$arr_trans[$i]["atid"];?></td>
-    						<td><img src="img/edit_data.png" width="30" height="30" title="แก้ไข" onclick="edit_reserve(<?=$arr_trans[$i]["atid"];?>,'<?=basename(__FILE__, '.php');?>');" class="edit_data"></td>
+    						<td><a onclick="edit_reserve(<?=$arr_trans[$i]["atid"];?>,'<?=basename(__FILE__, '.php');?>');"><img src="img/edit_data.png" width="30" height="30" title="แก้ไข" class="edit_data">&nbsp;<?=$arr_trans[$i]["reserve_no"]?></a></td>
     						<td><?=$arr_trans[$i]["destination_cmp"].'-'.$arr_trans[$i]["destination_div"];?></td>
     						<td><?=$arr_trans[$i]["cause_des"];?></td>
     						<td><?=$arr_trans[$i]["cause_detail"];?></td>
-    						<td><?=$arr_trans[$i]["note"];?></td>
-    						<td><?=$arr_trans[$i]["status_des"];?></td>
-    						<td><?=$class_general->change_date_from_db_to_show_datetime($arr_trans[$i]["modifydate"]);?></td>
+    						<td><?=$arr_trans[$i]["source_note"];?></td>
+    						<td>
+    							<?php
+    								if($arr_trans[$i]["status"]=="1"){
+    									echo $arr_trans[$i]["status_des"];
+    								}else{
+    									echo "ถูกตีกลับ ";
+    									$q_reason_flow = "select TOP 1 f.atid,f.status_note FROM flow f where f.status=2 and reserve_id=".$arr_trans[$i]["atid"]." order by atid desc ";
+    									$arr_reason_flow = $local_db->query_data($q_reason_flow,NULL);
+    									if(is_array($arr_reason_flow)&&sizeof($arr_reason_flow)>0){
+    										echo ($arr_reason_flow[0]['status_note']!=NULL)?" - ".$arr_reason_flow[0]['status_note']:"";
+    									}
+    								}
+    							?>
+    						</td>
     					</tr>
     					<?php
     					$i++;

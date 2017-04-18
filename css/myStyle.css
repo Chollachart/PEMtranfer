@@ -128,3 +128,6 @@ table.tableStrikeout tfoot tr td{
 	padding: 3px;
 	font-size: 18px;
 }
+img.img_save,img.img_delete,img.img_edit{
+	cursor: pointer;
+}

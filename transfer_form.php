@@ -27,7 +27,7 @@ echo $panelLogout;
 $local_db = new db_class("localhost");
 $class_general = new general_class();
 $company_source = $company_allowed; 
-if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
+if($company_source=="PEM"){$company_destination = "PEM1";}else{$company_destination = "PEM";}
 $trans_id = $_GET['id'];
 
 $q_reserve_old = "select rt.*,c.des as cause_des from reserve_transaction rt left join cause c on rt.cause_id=c.atid where rt.atid=?";
@@ -91,7 +91,7 @@ $arr_reserve = $arr_old_reserve[0];
 		            <li class="dropdown">
 		              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">ตั้งค่า<span class="caret"></span></a>
 		              <ul class="dropdown-menu">
-		                <li role="menu" get-content="mapping_itemcode"><a href="#">จับคู่ไอเทม</a></li>
+		                <li role="menu"><a href="mapping_itemcode.php">จับคู่ไอเทม</a></li>
 		                <!--<li role="separator" class="divider"></li>-->
 		              </ul>
 		            </li>
@@ -113,16 +113,14 @@ $arr_reserve = $arr_old_reserve[0];
 					<td width="40%" align="right" >บริษัท-ฝ่ายผู้ขอ : </td>
 					<td width="60%">
 					<?=trim($arr_reserve['source_cmp'])."-".trim($arr_reserve['source_div']);?>
-					<input type="hidden" id="transfer_company_source_code" value="<?=$company_source?>">
-					<input type="hidden" id="transfer_company_destination_code" value="<?=$company_destination?>">
+					<input type="hidden" id="transfer_company_source_code" value="<?=$arr_reserve['source_cmp'];?>">
+					<input type="hidden" id="transfer_company_destination_code" value="<?=$arr_reserve['destination_cmp'];?>">
 					</td>
 				</tr>
 				<tr>
-					<td align="right">ฝ่ายเจ้าของไอเทม : </td>
+					<td align="right">บริษัท-ฝ่ายเจ้าของไอเทม : </td>
 					<td>
-						  		<?php
-						  			echo trim($arr_reserve['destination_div']);
-						  		?>
+					<?=trim($arr_reserve['destination_cmp'])."-".trim($arr_reserve['destination_div']);?>
 					</td>
 				</tr>
 				<tr>
@@ -135,15 +133,15 @@ $arr_reserve = $arr_old_reserve[0];
 				</tr>
 				
 				<tr>
-					<td align="right" style="vertical-align:text-top;">ซีเรียล, โน้ต : </td>
+					<td align="right" style="vertical-align:text-top;">Serial, Note (<?=$arr_reserve['source_cmp'];?>) : </td>
 					<td>
-						<?=$arr_reserve['note']?>
+						<?=$arr_reserve['source_note']?>
 					</td>
 				</tr>
 				<tr>
-					<td align="right" style="vertical-align:text-top;">ซีเรียลการจอง : </td>
+					<td align="right" style="vertical-align:text-top;">Serial, Note (<?=$arr_reserve['destination_cmp'];?>) : </td>
 					<td>
-						<?=$arr_reserve['serial_reserve'];?>
+						<?=$arr_reserve['destination_note'];?>
 					</td>
 				</tr>
 				<tr>
@@ -178,24 +176,27 @@ $arr_reserve = $arr_old_reserve[0];
 				</tr>
 			</table>
 
-			<table id="transfer_table_item_add" class="table-transfer">
+			<table id="transfer_table_item_add" class="table-transfer" >
 							<thead>
 								<tr>
 									<td>index</td>
 									<td>old id</td>
-									<td>ไอเทมไอดี</td>
-									<td width="18%">ไอเทม <?=$company_source?></td>
-									<td width="18%">ไอเทม <?=$company_destination?></td>
-									<td width="20%">คำอธิบาย</td>
+									<td>Itemid</td>
+									<td width="15%">Itemcode <?=$company_source?></td>
+									<td width="18%">Description <?=$company_source?></td>
+									<td width="15%">Itemcode <?=$company_destination?></td>
+									<td width="18%">Description <?=$company_destination?></td>
 									<td width="9%">Expect Date</td>
-									<td width="10%">จำนวนที่ต้องการ</td>
-									<td width="10%">โน้ต</td>
-									<td width="5%">Your Ref.</td>
+									<td width="8%">Quantity</td>
+									<td width="8%">Note</td>
+									<td width="6%">จำนวนที่ตัดแล้ว</td>
+									<td width="3%">Your Ref.</td>
+
 								</tr>
 							</thead>
 							<tbody>
 								<?php
-								$q_item = "select ri.*,im.itemcode_PEM,im.itemcode_PEM1,im.itemdes_PEM,im.itemdes_PEM1 from reserve_item ri left join item_map im on ri.item_id = im.atid where reserve_transaction_id=? order by ri.atid asc";
+								$q_item = "select ri.*,(select ISNULL(SUM(ISNULL(yrf_qty,0)),0) from your_ref where yrf_item_id=ri.atid) as sum_qty from (select ri.*,im.itemcode_PEM,im.itemcode_PEM1,im.itemdes_PEM,im.itemdes_PEM1 from reserve_item ri left join item_map im on ri.item_id = im.atid where reserve_transaction_id=?) as ri";
 								$arr_q_item = $local_db->query_data($q_item,array($trans_id));
 								$i=0;
 								while($i<sizeof($arr_q_item)){
@@ -204,11 +205,13 @@ $arr_reserve = $arr_old_reserve[0];
 										echo '<td>'.$arr_q_item[$i]["atid"].'</td>';
 										echo '<td>'.$arr_q_item[$i]["item_id"].'</td>';
 										echo '<td>'.$arr_q_item[$i]["itemcode_".$company_source].'</td>';
-										echo '<td>'.$arr_q_item[$i]["itemcode_".$company_destination].'</td>';
 										echo '<td>'.$arr_q_item[$i]["itemdes_".$company_source].'</td>';
+										echo '<td>'.$arr_q_item[$i]["itemcode_".$company_destination].'</td>';
+										echo '<td>'.$arr_q_item[$i]["itemdes_".$company_destination].'</td>';
 										echo '<td>'.$class_general->change_date_from_db_to_show_date($arr_q_item[$i]["expect_date"]).'</td>';
 										echo '<td>'.$arr_q_item[$i]["qty"].'</td>';
 										echo '<td>'.$arr_q_item[$i]["note_item"].'</td>';
+										echo '<td><span class="span_already_transfer">'.number_format($arr_q_item[$i]["sum_qty"],4).'</span></td>';
 										echo '<td><img style="cursor:pointer;" src="img/ref.png" width="30" index="'.$i.'" class="add_your_ref" height="30"></td>';			
 									echo '</tr>';
 									$i++;
@@ -221,11 +224,11 @@ $arr_reserve = $arr_old_reserve[0];
 					<td align="center" colspan="2">
 						<div class="row">
 						  	<div class="col-md-6">
-						  		<button class="btn btn-default btn-lg" onclick="save_your_ref();" style="width:100%"><img src="img/save.png" width="30" title="บันทึก" height="30"> <b>บันทึก</b></button>
+						  		<button role="save_ref" class="btn btn-default btn-lg" onclick="save_your_ref();" style="width:100%"><img src="img/save.png" width="30" title="บันทึก" height="30"> <b>บันทึก</b></button>
 								
 							</div>
 							<div class="col-md-6">
-								<button class="btn btn-default btn-lg" onclick="close_transfer();" style="width:100%"><img src="img/folder.png" width="30" title="บันทึก" height="30"> <b>ปิดงาน</b></button>
+								<button role="close_transfer" class="btn btn-default btn-lg" onclick="close_transfer();" style="width:100%"><img src="img/folder.png" width="30" title="บันทึก" height="30"> <b>ปิดงาน</b></button>
 							</div>
 						</div>
 					</td>
@@ -240,12 +243,10 @@ $arr_reserve = $arr_old_reserve[0];
     </div>
 	</body>
 <script>
-var win_width = window.innerWidth;
-var win_height = window.innerHeight;
 var table_item_transfer=$('#transfer_table_item_add').DataTable({"dom":'<t>',"columnDefs": [{"targets": [0,1,2],"visible": false,"searchable": false}],"bPaginate": false,"bSort":false});
 var your_ref_obj = {}; 
 get_old_your_ref();
-
+console.log(your_ref_obj);
 $('#approve_delivery_date').datepicker({daysOfWeekDisabled: [0,6],format:'dd/mm/yyyy',autoclose: true,todayHighlight:true,language:'th',minViewMode: "0",startDate: new Date()});
 $('#dialog_your_ref').dialog({
             autoOpen: false,
@@ -266,9 +267,9 @@ $('#dialog_your_ref').dialog({
 $(".add_your_ref").click(function(){
 	var this_row_data = table_item_transfer.row($(this).closest("tr")).data();
 	var index = this_row_data[0];
-	var itemcode = this_row_data[4];
+	var itemcode = this_row_data[3];
 	var item_atid = this_row_data[1];
-	$('#dialog_your_ref').dialog('option', 'title','*** ระบุ Your Ref. ทางด้านซ้าย แล้วกด <img src="img/push_right.png" width="15" height="15"> ***');
+	$('#dialog_your_ref').dialog('option', 'title','*** ระบุ Your Ref. ทางด้านซ้าย แล้วกด <img src="img/right.png" width="15" height="15"> ***');
 	var array_ref = your_ref_obj["index_"+item_atid];
 	$.ajax({
 		url: "ajaxData/get_from_add_your_ref.php",
@@ -297,17 +298,20 @@ function push_dialog_data_to_obj(){
 
 	var array_ref = [];
 	$("div.item_all div.row").each(function(){
-		if($.trim($(this).find('input[role=add_your_ref]').val())!=""&&$(this).find('input[role=add_your_ref]').attr('disabled')=="disabled"){
-			array_ref.push([$('#hidden_itematid_yourref').val(),$('#hidden_itemcode_yourref').val(),$(this).find('input[role=add_your_ref]').val(),$(this).find('input[role=add_your_qty]').val()]);	
-		}
+		//if($.trim($(this).find('input[role=add_your_ref]').val())!=""&&$(this).find('input[role=add_your_ref]').attr('disabled')=="disabled"){
+			array_ref.push([$('#hidden_itematid_yourref').val(),$('#hidden_itemcode_yourref').val(),$(this).find('span.ref_doc_number').html(),$(this).find('span.ref_your_qty').html()]);	
+		//}
 	});
 
 	if(array_ref.length==0){
 		delete your_ref_obj["index_"+$('#hidden_itematid_yourref').val()];	
+		$("button[role=close_transfer]").attr("disabled","disabled");
 	}
 	else{
 		your_ref_obj["index_"+$('#hidden_itematid_yourref').val()] = array_ref;
+		$("button[role=close_transfer]").removeAttr("disabled");
 	}
+	//console.log(your_ref_obj);
 	/////////////// 0 = item_id , 1 = itemcode , 2 = yourref , 3 = qty ///////////////////
 }
 function get_old_your_ref(){
@@ -326,6 +330,7 @@ function get_old_your_ref(){
 				your_ref_obj = result[1];
 			}else{
 				your_ref_obj = {};
+				$("button[role=close_transfer]").attr("disabled","disabled");
 			}
 			$.isLoading("hide");
 		}
@@ -333,30 +338,33 @@ function get_old_your_ref(){
 }
 function save_your_ref(){
 	if(Object.keys(your_ref_obj).length!=0){
-		var i=0;  var rowCount = table_item_transfer.column(0).data().length; 
+		var type_save = "edit";
+	}else{
+		var type_save = "delete";
+	}
+	
+	var i=0;  var rowCount = table_item_transfer.column(0).data().length; 
 		var item_id_arr = [];
 		while(i<rowCount){
 			var this_row_data = table_item_transfer.row(i).data();
 			item_id_arr.push(parseInt(this_row_data[1])); 
 			i++;
-		}
-		//console.log(item_id_arr);
-		$.ajax({
+	}
+	$.ajax({
 			url: "ajaxData/save_your_ref.php",
 			async: true,
 			dataType: "text",
 			type: "post",
-			data: {"username":$("#hidden_user_name").val(),"userid":$("#hidden_user_id").val(),"your_ref_obj":your_ref_obj,"item_id_arr":item_id_arr},
+			data: {"type_save":type_save,"username":$("#hidden_user_name").val(),"userid":$("#hidden_user_id").val(),"your_ref_obj":your_ref_obj,"item_id_arr":item_id_arr},
 			beforeSend: function(){
 				$(".content").isLoading({ text:"กำลังบันทึก",position:"overlay"});
 			},
 			success: function (result) {
-				//console.log(result);
+				console.log(result);
 				$(".content").isLoading("hide");
 				location.reload();
 			}
-		});
-	}
+	});
 }
 function close_transfer(){
 	console.log(Object.keys(your_ref_obj).length);

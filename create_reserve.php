@@ -26,7 +26,7 @@ if(is_array($personDetail['CompanyAllowed'])){
 echo $panelLogout;
 $local_db = new db_class("localhost");
 $company_source = $company_allowed; 
-if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
+if($company_source=="PEM"){$company_destination = "PEM1";}else{$company_destination = "PEM";}
 ?>
 <html>
 	<head>
@@ -83,7 +83,7 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 		            <li class="dropdown">
 		              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">ตั้งค่า<span class="caret"></span></a>
 		              <ul class="dropdown-menu">
-		                <li role="menu" get-content="mapping_itemcode"><a href="#">จับคู่ไอเทม</a></li>
+		                <li role="menu"><a href="mapping_itemcode.php">จับคู่ไอเทม</a></li>
 		                <!--<li role="separator" class="divider"></li>-->
 		              </ul>
 		            </li>
@@ -97,8 +97,8 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 			<hr>
 			<table class="table-main" style="background-color:#F8F8FF;">
 				<tr>
-					<td align="right" width="20%">ชื่อ : </td>
-					<td width="80%">
+					<td align="right" width="15%">ชื่อ : </td>
+					<td width="85%">
 						<?php
 							echo $personDetail['PersonFnamethai']." ".$personDetail['PersonLnamethai']." (".$personDetail['CompanyCode'].")";
 						?>
@@ -142,7 +142,6 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 					<td>
 						<?php
 							echo $company_destination;
-							
 						?>
 						<input type="hidden" id="create_company_source_code" value="<?=$company_source?>">
 						<input type="hidden" id="create_company_destination_code" value="<?=$company_destination?>">
@@ -190,20 +189,21 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 					</td>
 				</tr>
 				<tr>
-					<td align="right">ไอเทม : </td>
+					<td align="right">Item : </td>
 					<td>
 						<table id="create_table_item_add" class="table-small">
 							<thead>
 								<tr>
 									<td>old id</td>
 									<td>ไอเทมไอดี</td>
-									<td width="20%">ไอเทม <?=$company_source?></td>
-									<td width="20%">ไอเทม <?=$company_destination?></td>
-									<td width="20%">คำอธิบาย</td>
+									<td width="15%">Itemcode <?=$company_source?></td>
+									<td width="22%">Description <?=$company_source?></td>
+									<td width="15%">Itemcode <?=$company_destination?></td>
+									<td width="22%">Description <?=$company_destination?></td>
 									<td width="5%">Expect Date</td>
-									<td width="10%">จำนวนที่ต้องการ</td>
-									<td width="10%">โน้ต</td>
-									<td width="5%">เพิ่ม/ลบ</td>
+									<td width="8%">Quantity</td>
+									<td width="8%">Note</td>
+									<td width="5%">Add/Delete</td>
 								</tr>
 							</thead>
 							<tbody>
@@ -213,23 +213,24 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 								<tr>
 									<td></td>
 									<td></td>
-									<td><select class="form-control" style="width:100%" id="create_item_tranfer"><option value="">เลือกไอเทม</option></select></td>
-									<td><span id="span_item_code_desitation"></span></td>
-									<td><span id="span_item_des_desitation"></span></td>
-									<td><input id="create_expect_date" placeholder="วันที่" type="text" class="form-control"></td>
+									<td><input type="text" class="form-control" item-atid="" style="width:100%" id="create_item_tranfer"></td>
+									<td><span id="span_item_des_source"></span></td>
+									<td><span id="span_item_code_destination"></span></td>
+									<td><span id="span_item_des_destination"></span></td>
+									<td><input id="create_expect_date" placeholder="วันที่" type="text" class="form-control" readonly></td>
 									<td>
 										<input id="create_item_qty" placeholder="จำนวน" type="text" class="form-control">
 										
 									</td>
 									<td><input id="create_note_item" placeholder="โน้ต" type="text" class="form-control"></td>
-									<td><img style="cursor:pointer;" src="img/add_row.png" onclick="add_row_footer();" width="30" height="30"></td>
+									<td><img style="cursor:pointer;" src="img/save.png" onclick="add_row_footer();" width="30" height="30"></td>
 								</tr>
 							</tfoot>
 						</table>
 					</td>
 				</tr>
 				<tr>
-					<td align="right" style="vertical-align:text-top;">ซีเรียล, โน้ต : </td>
+					<td align="right" style="vertical-align:text-top;">Serial/Note : </td>
 					<td>
 						<div class="row">
 						  	<div class="col-md-6">
@@ -256,7 +257,7 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 				</tr>
 				<tr>
 					<td align="center" colspan="2">
-						<button class="btn btn-primary btn-lg" onclick="save_create();" style="width:100%">เปิดใบคำขอ</button>
+						<button class="btn btn-success btn-lg" onclick="save_create();" style="width:100%">เปิดใบคำขอ</button>
 					</td>
 				</tr>
 			</table>
@@ -266,81 +267,111 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 <script>
 var win_width = window.innerWidth;
 var win_height = window.innerHeight;
-var itemcode_obj = get_itemcode_array();
-push_itemcode_to_selector();
+var arr_autocomplete_itemcode = null;
+arr_autocomplete_itemcode = get_itemcode_array($("#create_company_source_code").val(),$("#create_company_destination_code").val());
+
+$("#create_item_tranfer").autocomplete({
+ 	source: function(request, response) {
+ 		if(arr_autocomplete_itemcode!=null){
+        	var results = $.ui.autocomplete.filter(arr_autocomplete_itemcode, request.term);
+        	response(results.slice(0, 10));
+    	}
+    },
+ 	select : function(event, ui){
+		var value = arr_autocomplete_itemcode[ui.item.value];
+		console.log(ui.item);
+		$(this).attr("item-atid",ui.item.atid);
+		$("#span_item_code_destination").html(ui.item.itemcode_destination);
+		$("#span_item_des_source").html(ui.item.itemdes_source);
+		$("#span_item_des_destination").html(ui.item.itemdes_destination);
+    },
+    change: function (event, ui) {
+        if(!ui.item){$(this).val(""); $("#span_item_code_destination,#span_item_des_destination,#span_item_des_source").html(''); }
+    }
+}).click(function() {
+	    $(this).val('').autocomplete('search',' ');
+}).focusout(function(){if($(this).val()==""){ $(this).attr("item-atid",""); $("#span_item_code_destination,#span_item_des_destination,#span_item_des_source").html(''); }});
+
 
 $('#create_item_qty').bind('keypress',function(e){var charCode = (e.which) ? e.which : e.keyCode; if (charCode > 31 && (charCode < 48 || charCode > 57)) { return false;}});
 $('#create_expect_date').datepicker({daysOfWeekDisabled: [0,6],format:'dd/mm/yyyy',autoclose: true,todayHighlight:true,language:'th',minViewMode: "0",startDate: new Date()});
 
 var table_item_tranfer=$('#create_table_item_add').DataTable({"dom":'<t>',"columnDefs": [{"targets": [0,1],"visible": false,"searchable": false}],"bPaginate": false,"bSort":false});
 
-$("#create_item_tranfer").change(function(){
-	var atid_item = $(this).val();
-	if(atid_item==""||atid_item==null){$("#span_item_des_desitation,#span_item_code_desitation").html('');}else{
-		$("#span_item_des_desitation").html(itemcode_obj[atid_item]["itemdes_"+$("#create_company_source_code").val()]);
-		$("#span_item_code_desitation").html(itemcode_obj[atid_item]["itemcode_"+$("#create_company_destination_code").val()]);
-	}
-	//$("#create_item_description").html(itemcode_obj[]);
-});
 $("input[type=file][class=upload]").change(function(){
   var path = $(this).val();
   var filename = path.replace(/^.*\\/, "");
   $("input[uploadmatch="+$(this).attr("name")+"]").val(filename);
 });
 
-function push_itemcode_to_selector(){
-		for (var key in itemcode_obj) {
-			  if (itemcode_obj.hasOwnProperty(key)) {
-			    $('#create_item_tranfer').append($("<option></option>").attr("value",itemcode_obj[key]['atid']).text($.trim(itemcode_obj[key]['itemcode_'+$("#create_company_source_code").val()]))); 
-			  }
-		}
-}
+
 function add_row_footer(){
-	if($('#create_item_tranfer').val()==""||$('#create_item_qty').val()==""){alert("กรุณาระบุข้อมูลให้ครบถ้วน"); return false;}
-	var data_item = itemcode_obj[$("#create_item_tranfer option:selected").val()];
-	//console.log(data_item);
-	row_node=table_item_tranfer.row.add([null,data_item['atid'],data_item['itemcode_'+$("#create_company_source_code").val()],data_item['itemcode_'+$("#create_company_destination_code").val()],data_item['itemdes_'+$("#create_company_source_code").val()],$("#create_expect_date").val(),$("#create_item_qty").val(),$("#create_note_item").val(),'<img style="cursor:pointer;" class="delete_row" src="img/delete_row.png" onclick="delete_row(this);" width="30" height="30">']).draw().node();
-	
+	if($('#create_item_tranfer').val()==""||$('#create_item_qty').val()==""||$("#create_item_tranfer").attr("item-atid")==""){alert("กรุณาระบุข้อมูลให้ครบถ้วน"); return false;}
+	//if($('#span_item_code_').html()==""){alert("กรุณาเลือกไอเทมจากใน List เท่านั้น"); return false;}
+	$(".content").isLoading({ text:"กำลังเพิ่ม",position:"overlay"});
+	//console.log(arr_autocomplete_itemcode);
+	var i=0;
+	while(i<arr_autocomplete_itemcode.length){
+		var obj_check = arr_autocomplete_itemcode[i];
+		//console.log(obj_check);
+		if(obj_check.atid==$("#create_item_tranfer").attr("item-atid")){
+			row_node=table_item_tranfer.row.add([null,obj_check.atid,obj_check.itemcode_source,obj_check.itemdes_source,obj_check.itemcode_destination,obj_check.itemdes_destination,$("#create_expect_date").val(),$("#create_item_qty").val(),$("#create_note_item").val(),'<img style="cursor:pointer;" class="delete_row" src="img/delete_line.png" onclick="delete_row(this);" width="30" height="30">']).draw().node();
+			break;
+		}
+		i++;
+	}
+	$(".content").isLoading("hide");
+	$("#create_item_tranfer").attr("item-atid","");
+	$("#create_item_tranfer,#create_expect_date,#create_note_item,#create_item_qty").val('');
+	$("#span_item_code_destination,#span_item_des_destination,#span_item_des_source").html('');
 }
 function delete_row(this_html){
 	table_item_tranfer.row($(this_html).parents('tr')).remove().draw();
 }
+function check_option(){
+	var check_option = true;
+	if($("#create_reason option:selected").val()=="4"&&$.trim($("#create_reason_detail").val())=="")
+	{check_option = false; alert("กรุณาระบุรายละเอียดของสาเหตุที่ขอ"); $("#create_reason_detail").focus(); return check_option;}
+	return check_option;
+}
 function save_create(){
-	var r = confirm("ยืนยันคำขอ");
-	if(r==true){
-		var rowCount=table_item_tranfer.column(0).data().length; var i=0; var array_item_insert = [];
-		while(i<rowCount){
-			var data_tr = table_item_tranfer.row(i).data();
-			array_item_insert.push(data_tr);
-			i++;
+	if(check_option()==true){
+		var r = confirm("ยืนยันคำขอ");
+		if(r==true){
+			var rowCount=table_item_tranfer.column(0).data().length; var i=0; var array_item_insert = [];
+			while(i<rowCount){
+				var data_tr = table_item_tranfer.row(i).data();
+				array_item_insert.push(data_tr);
+				i++;
+			}
+			//console.log(array_item_insert);
+			if(array_item_insert.length==0){alert("กรุณาเพิ่มไอเทม"); return false;}else{
+				$.ajax({
+			      url: "ajaxData/save_create.php",
+			      async: true,
+			      dataType: "json",
+			      type: "post",
+			      data: {"userid":$("#create_userid").val(),"username":$("#create_username").val(),"company_source":$("#create_company_source_code").val(),
+			      "company_destination":$("#create_company_destination_code").val(),"reason":$("#create_reason option:selected").val(),"reason_detail":$.trim($("#create_reason_detail").val()),
+			      "div_source":$("#create_div_source option:selected").val(),
+			      "div_destination":$("#create_div_destination option:selected").val(),"note":$("#create_note").val(),
+			      "array_item_insert":array_item_insert
+			  	  },
+			      beforeSend: function(){
+			      	$(".content").isLoading({ text:"กำลังบันทึก",position:"overlay"});
+			      },
+			      success: function (result) {
+			        $(".content").isLoading("hide");
+			        console.log(result);
+			        if(result!=null&&result[0]==true){
+			        	save_file(result[1]);
+			        	window.location = "reserve_list.php";
+			        }
+			      }
+		  		});
+			}
 		}
-		//console.log(array_item_insert);
-		if(array_item_insert.length==0){alert("กรุณาเพิ่มไอเทม"); return false;}else{
-			$.ajax({
-		      url: "ajaxData/save_create.php",
-		      async: true,
-		      dataType: "json",
-		      type: "post",
-		      data: {"userid":$("#create_userid").val(),"username":$("#create_username").val(),"company_source":$("#create_company_source_code").val(),
-		      "company_destination":$("#create_company_destination_code").val(),"reason":$("#create_reason option:selected").val(),"reason_detail":$.trim($("#create_reason_detail").val()),
-		      "div_source":$("#create_div_source option:selected").val(),
-		      "div_destination":$("#create_div_destination option:selected").val(),"note":$("#create_note").val(),
-		      "array_item_insert":array_item_insert
-		  	  },
-		      beforeSend: function(){
-		      	$(".content").isLoading({ text:"กำลังบันทึก",position:"overlay"});
-		      },
-		      success: function (result) {
-		        $(".content").isLoading("hide");
-		        console.log(result);
-		        if(result!=null&&result[0]==true){
-		        	save_file(result[1]);
-		        	window.location = "reserve_list.php";
-		        }
-		      }
-	  		});
-		}
-	}
+	}	
 }
 function save_file(trans_id)
 {

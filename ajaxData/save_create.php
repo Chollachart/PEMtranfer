@@ -5,7 +5,8 @@ $class_general = new general_class();
 $today = $class_general->get_datetime_today();
 $arr_return = array();
 $q_save = "insert into [reserve_transaction] (
-	   [source_cmp]
+	   [reserve_no]
+	  ,[source_cmp]
       ,[source_div]
       ,[source_user]
       ,[source_user_name]
@@ -13,11 +14,11 @@ $q_save = "insert into [reserve_transaction] (
       ,[destination_div]
       ,[cause_id]
       ,[cause_detail]
-      ,[note]
+      ,[source_note]
       ,[modifydate]
       ,[status]
-      ,[row_active]) OUTPUT Inserted.atid as id values (?,?,?,?,?,?,?,?,?,?,?,?)";
-$params_save = array($_POST['company_source'],$_POST['div_source'],$_POST['userid'],$_POST['username'],$_POST['company_destination'],$_POST['div_destination'],$_POST['reason'],$_POST['reason_detail'],$_POST['note'],$today,1,1);
+      ,[row_active]) OUTPUT Inserted.atid as id values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+$params_save = array($class_general->gen_tranfer_no($_POST['company_source']),$_POST['company_source'],$_POST['div_source'],$_POST['userid'],$_POST['username'],$_POST['company_destination'],$_POST['div_destination'],$_POST['reason'],$_POST['reason_detail'],$_POST['note'],$today,1,1);
 $arr_query=$local_db->query_data($q_save,$params_save);
 
 if(is_array($arr_query)&&sizeof($arr_query)>0){
@@ -32,7 +33,7 @@ if(is_array($arr_query)&&sizeof($arr_query)>0){
 	$i=0;
 	while($i<sizeof($_POST['array_item_insert'])){
 		$arr_item = $_POST['array_item_insert'][$i];
-		$params_item = array($arr_query[0]['id'],$arr_item[1],$class_general->split_comma($arr_item[6]),$class_general->change_date_to_db($arr_item[5]),$arr_item[7]);
+		$params_item = array($arr_query[0]['id'],$arr_item[1],$class_general->split_comma($arr_item[7]),$class_general->change_date_to_db($arr_item[6]),$arr_item[8]);
 		$arr_item_return=$local_db->query_data($q_item,$params_item);
 		$i++;
 	} 

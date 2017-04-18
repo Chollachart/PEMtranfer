@@ -28,7 +28,7 @@ echo $panelLogout;
 $local_db = new db_class("localhost");
 $class_general = new general_class();
 $company_source = $company_allowed; 
-if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
+if($company_source=="PEM"){$company_destination = "PEM1";}else{$company_destination = "PEM";}
 ?>
 <html>
 	<head>
@@ -85,7 +85,7 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
 		            <li class="dropdown">
 		              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">ตั้งค่า<span class="caret"></span></a>
 		              <ul class="dropdown-menu">
-		                <li role="menu" get-content="mapping_itemcode"><a href="#">จับคู่ไอเทม</a></li>
+		                <li role="menu"><a href="mapping_itemcode.php">จับคู่ไอเทม</a></li>
 		                <!--<li role="separator" class="divider"></li>-->
 		              </ul>
 		            </li>
@@ -99,12 +99,12 @@ if($company_source=="PEM"){$company_destination = "PEM1";}else{"PEM";}
     			<thead>
     				<tr>
     					<td>id</td>
-    					<td width="8%">ตัดโอน</td>
+    					<td width="13%">ตัดโอน</td>
     					<td width="11%">บริษัท-ฝ่ายร้องขอ</td>
     					<td width="11%">บริษัท-ฝ่ายเจ้าของ</td>
     					<td width="10%">สาเหตุ</td>
-    					<td width="25%">รายละเอียด</td>
-    					<td width="20%">โน้ต</td>
+    					<td width="20%">รายละเอียด</td>
+    					<td width="20%">Note</td>
     					<td width="15%">แก้ไขล่าสุด</td>
     				</tr>
     			</thead>
@@ -121,12 +121,12 @@ where rt.destination_cmp='".$company_allowed."' and rt.status=3 and rt.row_activ
     					?>
     					<tr>
     						<td><?=$arr_trans[$i]["atid"];?></td>
-    						<td><img src="img/stock.png" width="30" height="30"  class="edit_data" onclick="cutting_stock(<?=$arr_trans[$i]["atid"];?>,'<?=basename(__FILE__, '.php');?>');" class="form_acknowledge"></td>
+    						<td nowrap><a onclick="cutting_stock(<?=$arr_trans[$i]["atid"];?>,'<?=basename(__FILE__, '.php');?>');"><img src="img/stock.png" width="30" height="30"  class="edit_data" class="form_acknowledge">&nbsp;<?=$arr_trans[$i]['reserve_no'];?></a></td>
     						<td><?=$arr_trans[$i]["source_cmp"].'-'.$arr_trans[$i]["source_div"];?></td>
     						<td><?=$arr_trans[$i]["destination_cmp"].'-'.$arr_trans[$i]["destination_div"];?></td>
     						<td><?=$arr_trans[$i]["cause_des"];?></td>
     						<td><?=$arr_trans[$i]["cause_detail"];?></td>
-    						<td><?=$arr_trans[$i]["note"];?></td>
+    						<td><?=$arr_trans[$i]["source_note"];?></td>
     						<td><?=$class_general->change_date_from_db_to_show_datetime($arr_trans[$i]["modifydate"]);?></td>
     					</tr>
     					<?php
